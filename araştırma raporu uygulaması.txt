@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Araştırma Raporu Uygulaması</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Genel yazı tipi ve boyutu ayarları */
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            line-height: 1.4;
+            background-color: #e0e0e0;
+            margin: 0;
+            padding: 20px 0;
+        }
+
+        /* Sayfa konteyneri - Word sayfası gibi görünmesi için */
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 50px;
+            background-color: #fff;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 0;
+        }
+
+        /* Düzenlenebilir alanlar için temel stiller */
+        .editable-content {
+            border: 1px solid #000;
+            padding: 10px 15px;
+            min-height: 150px;
+            margin-bottom: 15px;
+            background-color: #fff;
+            border-radius: 4px;
+            line-height: 1.4;
+        }
+        
+        /* Placeholder rengini data attribute ile yönetmek için */
+        [contenteditable="true"][data-placeholder-color="grey"] {
+            color: grey !important;
+        }
+         [contenteditable="true"][data-placeholder-color="black"] {
+            color: black !important;
+        }
+
+
+        /* Times New Roman ve 12 punto zorunluluğu */
+        #raporGovdesi,
+        #degerlendirmeSonucu,
+        .rapor-baslik-alani,
+        .dinamik-bilgi-etiket,
+        .dinamik-bilgi-deger,
+        .imza-kisi span,
+        #yeniSablonIcerigi,
+        .kayitli-sablon-icerik,
+        #raporOnizlemeAlani, 
+        .ilave-kutu { 
+            font-family: 'Times New Roman', Times, serif !important;
+            font-size: 12pt !important;
+        }
+
+        .ilave-kutu {
+            border: 1px solid #000; 
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9; 
+            border-radius: 4px;
+            min-height: 50px; 
+            line-height: 1.4; 
+        }
+
+        .imza-bolumu {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #ccc; 
+        }
+
+        .imza-kisi {
+            text-align: center;
+            width: calc(33.333% - 20px); 
+            min-width: 180px; 
+            margin: 10px; 
+            margin-bottom: 20px;
+        }
+
+        .imza-kisi span { 
+            display: block;
+            margin-bottom: 4px; 
+            min-height: 1.2em; 
+            border-bottom: 1px solid #000; 
+            padding: 2px 5px; 
+            font-family: 'Times New Roman', Times, serif !important; 
+            font-size: 12pt !important; 
+            line-height: 1.3; 
+        }
+        .imza-kisi span[contenteditable="true"]:focus {
+            outline: 2px solid #007bff; 
+            background-color: #f0f8ff; 
+        }
+
+        /* Kontrol Butonları */
+        .controls-container {
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px; 
+            justify-content: center;
+        }
+
+        .control-button {
+            background-color: #4A90E2; 
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 10pt;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .control-button:hover {
+            background-color: #357ABD; 
+        }
+        .control-button.finalize-button {
+            background-color: #4CAF50; 
+        }
+        .control-button.finalize-button:hover {
+            background-color: #45a049; 
+        }
+        .control-button.print-button {
+            background-color: #f0ad4e; 
+        }
+        .control-button.print-button:hover {
+            background-color: #ec971f; 
+        }
+        .control-button.add-info-button {
+            background-color: #5bc0de; 
+            font-size: 9pt;
+            padding: 6px 10px;
+        }
+        .control-button.add-info-button:hover {
+            background-color: #46b8da; 
+        }
+        .control-button.html-button { 
+            background-color: #E67E22; 
+        }
+        .control-button.html-button:hover {
+            background-color: #D35400; 
+        }
+
+
+        .delete-info-button, .delete-template-button {
+            background-color: #d9534f; 
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 3px 8px;
+            font-size: 9pt;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .delete-info-button:hover, .delete-template-button:hover {
+            background-color: #c9302c; 
+        }
+        .insert-template-button {
+            background-color: #5cb85c; 
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 3px 8px;
+            font-size: 9pt;
+            cursor: pointer;
+            margin-right: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .insert-template-button:hover{
+            background-color: #4cae4c; 
+        }
+
+
+        h1.rapor-baslik-alani {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 16pt !important; 
+            font-weight: bold;
+            border: 1px solid #000; 
+            padding: 10px;
+            border-radius: 4px;
+            text-transform: uppercase; 
+            line-height: 1.4; 
+        }
+        h1.rapor-baslik-alani[contenteditable="true"]:focus {
+             outline: 2px solid #007bff; 
+             border-color: #007bff; 
+        }
+
+        h2 { 
+            font-size: 12pt !important; 
+            font-weight: bold !important;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #bbb; 
+            padding-bottom: 5px;
+            color: #333; 
+            font-family: 'Times New Roman', Times, serif !important;
+            line-height: 1.3; 
+        }
+        
+        #dinamikBilgiAlanlariContainer {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fdfdfd;
+        }
+        .dinamik-bilgi-satiri {
+            display: flex;
+            align-items: center; /* Etiket ve değer kutularını dikeyde ortala */
+            margin-bottom: 8px;
+            padding: 8px; 
+            border: 1px solid #eee; 
+            border-radius: 4px;
+            background-color: #fff; 
+        }
+        .dinamik-bilgi-etiket {
+            font-weight: bold;
+            margin-right: 10px; 
+            padding: 8px 10px; 
+            border: 1px solid #000; 
+            border-radius: 4px;
+            min-width: 200px; 
+            background-color: #f9f9f9; 
+            white-space: nowrap; 
+            line-height: 1.3;
+        }
+        .dinamik-bilgi-deger {
+            flex-grow: 1;
+            padding: 8px 10px; 
+            border: 1px solid #000; 
+            border-radius: 4px;
+            background-color: white;
+            min-height: 38px; 
+            line-height: 1.3;
+        }
+        .dinamik-bilgi-etiket[contenteditable="true"]:focus,
+        .dinamik-bilgi-deger[contenteditable="true"]:focus {
+            outline: 2px solid #007bff; 
+            border-color: #007bff; 
+            background-color: #e6f2ff; 
+        }
+        
+        div[contenteditable="true"]:focus, span[contenteditable="true"]:focus {
+            outline: 2px solid #007bff; 
+        }
+        .editable-content:focus, .ilave-kutu:focus {
+             box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); 
+        }
+
+        #sablonlarContainer {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #004085; 
+            border-radius: 5px;
+            background-color: #f8f9fa; 
+        }
+        #yeniSablonBasligi { 
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #000;
+            border-radius: 4px;
+            font-family: 'Times New Roman', Times, serif; 
+            font-size: 12pt; 
+        }
+        #yeniSablonIcerigi {
+            width: 100%;
+            min-height: 80px;
+            border: 1px solid #000; 
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            background-color: white;
+            line-height: 1.4; 
+        }
+        .kayitli-sablon-item {
+            background-color: #fff;
+            border: 1px solid #ced4da; 
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            transition: box-shadow 0.2s ease;
+        }
+        .kayitli-sablon-item:hover {
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+        }
+        .kayitli-sablon-baslik { 
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 12pt !important; 
+            font-family: 'Times New Roman', Times, serif !important; 
+        }
+        .kayitli-sablon-icerik {
+            margin-right: 0; 
+            padding: 5px;
+            border: 1px dashed #ccc; 
+            min-height: 30px;
+            background-color: #fdfdfd; 
+            overflow: auto; 
+            max-height: 100px; 
+            line-height: 1.4; 
+        }
+        .kayitli-sablon-item .actions { 
+            margin-top: 5px;
+            text-align: right;
+        }
+        .kayitli-sablon-item .actions button {
+            margin-left: 5px;
+        }
+
+        /* Rapor Önizleme Alanı Stilleri (Yazdırma ve HTML İndirme için de kullanılır) */
+        #raporOnizlemeAlani .onizleme-rapor-basligi { 
+            font-size: 16pt !important;
+            text-align: center !important;
+            margin-bottom: 15px !important; 
+            font-weight: bold !important;
+            color: #000 !important;
+            font-family: 'Times New Roman', Times, serif !important;
+            border: 1px solid #000 !important;
+            padding: 8px !important; 
+            border-radius: 4px !important;
+            text-transform: uppercase !important; 
+            line-height: 1.3 !important; 
+        }
+        #raporOnizlemeAlani h2 { 
+            font-size: 12pt !important; 
+            margin-top: 8px !important; 
+            margin-bottom: 4px !important; 
+            border-bottom: 1px solid #ccc !important;
+            padding-bottom: 2px !important; 
+            font-weight: bold !important;
+            color: #000 !important;
+            font-family: 'Times New Roman', Times, serif !important;
+            line-height: 1.2 !important; 
+        }
+        #raporOnizlemeAlani .onizleme-editable-wrapper { 
+            margin-top: 4px !important; 
+            margin-bottom: 8px !important; 
+            border: 1px solid #000 !important;
+            padding: 10px 12px !important; 
+            min-height: 120px !important; 
+            border-radius: 4px !important;
+            background-color: #fff !important;
+            font-family: 'Times New Roman', Times, serif !important;
+            font-size: 12pt !important;
+            line-height: 1.3 !important; 
+        }
+        #raporOnizlemeAlani p, 
+        #raporOnizlemeAlani div:not(.onizleme-imza-bolumu):not(.onizleme-imza-kisi):not(.onizleme-bilgi-satiri):not(.onizleme-editable-wrapper):not(.onizleme-dinamik-etiket):not(.onizleme-dinamik-deger):not(.onizleme-rapor-basligi):not(.ilave-kutu) {
+            margin-bottom: 6px !important; 
+            line-height: 1.3 !important; 
+            color: #000 !important;
+            font-family: 'Times New Roman', Times, serif !important;
+            font-size: 12pt !important;
+        }
+        #raporOnizlemeAlani .ilave-kutu { 
+            border: 1px solid #000 !important; 
+            padding: 10px !important; 
+            margin: 8px 0 !important; 
+            background-color: #f9f9f9 !important; 
+            border-radius: 4px !important;
+            font-family: 'Times New Roman', Times, serif !important;
+            font-size: 12pt !important;
+            min-height: 45px !important; 
+            line-height: 1.3 !important; 
+        }
+        #raporOnizlemeAlani .onizleme-bilgi-satiri {
+            margin-bottom: 6px !important;  
+            font-family: 'Times New Roman', Times, serif !important;
+            font-size: 12pt !important;
+            display: flex !important; 
+            align-items: stretch !important; /* Etiket ve değer kutularının yüksekliklerini eşitler */
+            line-height: 1.2 !important; 
+        }
+        #raporOnizlemeAlani .onizleme-dinamik-etiket { 
+            font-weight: bold !important;
+            margin-right: 8px !important; 
+            padding: 3px 8px !important; /* Üst/Alt padding azaltıldı */
+            border: 1px solid #000 !important;
+            border-radius: 4px !important;
+            min-width: 180px !important; 
+            background-color: #f9f9f9 !important;
+            font-family: 'Times New Roman', Times, serif !important;
+            font-size: 12pt !important;
+            display: flex !important; /* Dikey ortalama için */
+            align-items: center !important; /* Dikey ortalama için */
+            min-height: 22px !important; /* Yüksekliği padding'e göre ayarla */
+        }
+        #raporOnizlemeAlani .onizleme-dinamik-deger { 
+            flex-grow: 1 !important;
+            padding: 3px 8px !important; /* Üst/Alt padding azaltıldı */
+            border: 1px solid #000 !important;
+            border-radius: 4px !important;
+            background-color: white !important;
+            font-family: 'Times New Roman', Times, serif !important;
+            font-size: 12pt !important;
+            display: flex !important; /* Dikey ortalama için */
+            align-items: center !important; /* Dikey ortalama için */
+            min-height: 22px !important; /* Yüksekliği padding'e göre ayarla */
+        }
+        #raporOnizlemeAlani .onizleme-imza-bolumu {
+            display: flex !important;
+            justify-content: space-around !important;
+            flex-wrap: wrap !important;
+            margin-top: 20px !important; 
+            padding-top: 8px !important; 
+            border-top: 1px solid #ccc !important;
+            font-family: 'Times New Roman', Times, serif !important;
+            font-size: 12pt !important;
+        }
+        #raporOnizlemeAlani .onizleme-imza-kisi {
+            text-align: center !important;
+            width: calc(33.333% - 16px) !important; 
+            min-width: 170px !important; 
+            margin: 4px !important; 
+            margin-bottom: 8px !important; 
+            font-family: 'Times New Roman', Times, serif !important;
+            font-size: 12pt !important;
+        }
+         #raporOnizlemeAlani .onizleme-imza-kisi div { 
+            font-family: 'Times New Roman', Times, serif !important;
+            font-size: 12pt !important;
+            color: #000 !important;
+            border-bottom: none !important; 
+            padding-bottom: 0px !important; 
+            margin-bottom: 0px !important; 
+            line-height: 1.3 !important; 
+        }
+
+
+        /* Yazdırma Stilleri */
+        @media print {
+            @page {
+                size: A4;  
+                margin: 1cm; 
+            }
+            html, body {
+                width: 100% !important;
+                height: auto !important; 
+                background-color: #fff !important; 
+                padding: 0 !important;
+                margin: 0 !important;
+                font-family: 'Times New Roman', Times, serif !important;
+                font-size: 12pt !important;
+                color: #000 !important;
+                line-height: 1.3 !important; 
+                overflow: visible !important; 
+                -webkit-print-color-adjust: exact !important; 
+                print-color-adjust: exact !important;
+            }
+            /* Yazdırma sırasında sadece #raporOnizlemeAlani'nın görünür olmasını sağla */
+            body > *:not(#raporOnizlemeAlani) {
+                display: none !important;
+                visibility: hidden !important; /* Ekstra güvenlik */
+            }
+            .container { 
+                 display: none !important;
+                 visibility: hidden !important; /* Ekstra güvenlik */
+            }
+            #raporOnizlemeAlani, #raporOnizlemeAlani * { 
+                visibility: visible !important; 
+            }
+            #raporOnizlemeAlani {
+                display: block !important; 
+                position: static !important; 
+                width: 100% !important; 
+                margin: 0 !important; 
+                padding: 0 !important; 
+                border: none !important; 
+                box-shadow: none !important;
+                background-color: #fff !important; 
+            }
+            #raporOnizlemeAlani > *:first-child {
+                 margin-top: 0 !important; 
+                 padding-top: 0 !important;
+            }
+            #raporOnizlemeAlani > *:last-child { 
+                margin-bottom: 0 !important;
+                padding-bottom: 0 !important;
+            }
+            /* Sayfa sonu kontrolü için genel kurallar */
+            .page-break-before { page-break-before: always !important; }
+            .page-break-after { page-break-after: always !important; }
+            .avoid-page-break { page-break-inside: avoid !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="rapor-baslik-alani" contenteditable="true" data-placeholder="RAPOR BAŞLIĞI"></h1>
+
+        <div id="dinamikBilgiAlanlariContainer">
+            <h2>Genel Bilgiler</h2>
+            <div id="dinamikBilgiListesi">
+                </div>
+            <button id="yeniBilgiEkleBtn" class="control-button add-info-button mt-3">Yeni Bilgi Alanı Ekle (+)</button>
+        </div>
+        
+        <div class="controls-container mb-4 mt-6">
+            <button id="basHarfBuyutBtn" class="control-button">Seçili Metinde Baş Harfleri Büyüt</button>
+            <button id="kutuEkleBtn" class="control-button">İlave Kutu Ekle</button>
+            <button id="applyTnr12BoldBtn" class="control-button">Seçili Metni TNR 12P Kalın</button> 
+            <button id="applyItalicBtn" class="control-button">Seçili Metni İtalik</button> 
+            <button id="sayfaTamamlaBtn" class="control-button finalize-button">Sayfa Tamamla & Önizle</button>
+            <button id="yazdirBtn" class="control-button print-button">Raporu Yazdır (PDF Olarak Kaydet)</button> 
+            <button id="indirHtmlBtn" class="control-button html-button">Raporu HTML Olarak İndir</button> 
+        </div>
+
+        <div id="raporGovdesi" class="editable-content" contenteditable="true" data-placeholder="Raporunuzun ana metnini buraya yazınız...">
+            </div>
+
+        <h2>Yapılan Değerlendirme Sonucunda</h2>
+        <div id="degerlendirmeSonucu" class="editable-content" contenteditable="true" data-placeholder="Değerlendirme sonuçlarınızı buraya ekleyiniz...">
+            </div>
+
+        <div id="sablonlarContainer">
+            <h2>Şablon Yönetimi</h2>
+            <p class="text-sm text-gray-600 mb-2">Sık kullandığınız metinleri kaydedin ve dilediğiniz zaman raporunuza ekleyin. Şablonlar tarayıcınızın yerel depolama alanında saklanır.</p>
+            <div>
+                <label for="yeniSablonBasligi" class="block text-sm font-medium text-gray-700 mb-1">Şablon Başlığı:</label>
+                <input type="text" id="yeniSablonBasligi" placeholder="Şablon için bir başlık girin..." class="mb-2">
+                <div id="yeniSablonIcerigi" contenteditable="true" data-placeholder="Yeni şablon metnini buraya yazın veya rapor içinden metin seçip 'Seçili Metni Şablon Yap' butonuna tıklayın..."></div>
+                <button id="sablonKaydetBtn" class="control-button mt-2">Yazdığım Metni Şablon Olarak Kaydet</button>
+                <button id="secilidenSablonKaydetBtn" class="control-button mt-2">Seçili Metni Şablon Yap</button>
+            </div>
+            <h3 class="text-lg font-semibold mt-4 mb-2">Kayıtlı Şablonlar</h3>
+            <div id="kayitliSablonlarListesi">
+                </div>
+        </div>
+
+        <div class="imza-bolumu">
+            <div class="imza-kisi">
+                <span contenteditable="true" data-placeholder="Üye"></span>
+                <span contenteditable="true" data-placeholder="Adı Soyadı"></span>
+                <span contenteditable="true" data-placeholder="Unvanı"></span>
+            </div>
+            <div class="imza-kisi">
+                <span contenteditable="true" data-placeholder="Üye"></span>
+                <span contenteditable="true" data-placeholder="Adı Soyadı"></span>
+                <span contenteditable="true" data-placeholder="Unvanı"></span>
+            </div>
+            <div class="imza-kisi">
+                <span contenteditable="true" data-placeholder="Üye"></span>
+                <span contenteditable="true" data-placeholder="Adı Soyadı"></span>
+                <span contenteditable="true" data-placeholder="Unvanı"></span>
+            </div>
+            <div class="imza-kisi">
+                <span contenteditable="true" data-placeholder="Başkan"></span>
+                <span contenteditable="true" data-placeholder="Adı Soyadı"></span>
+                <span contenteditable="true" data-placeholder="Unvanı"></span>
+            </div>
+             <div class="imza-kisi">
+                <span contenteditable="true" data-placeholder="Üye"></span>
+                <span contenteditable="true" data-placeholder="Adı Soyadı"></span>
+                <span contenteditable="true" data-placeholder="Unvanı"></span>
+            </div>
+        </div>
+
+        <div id="raporOnizlemeAlani" style="display:none;">
+            </div>
+    </div>
+
+    <script>
+        // İmleç pozisyonunu almak için yardımcı fonksiyon (şu an aktif kullanılmıyor)
+        function getCursorOffset(element) {
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                if (element.contains(range.startContainer)) {
+                    const preCaretRange = range.cloneRange();
+                    preCaretRange.selectNodeContents(element);
+                    preCaretRange.setEnd(range.startContainer, range.startOffset);
+                    return preCaretRange.toString().length;
+                }
+            }
+            return 0; 
+        }
+
+        // İmleç pozisyonunu ayarlamak için yardımcı fonksiyon (şu an aktif kullanılmıyor)
+        function setCursorOffset(element, offset) {
+            const selection = window.getSelection();
+            const newRange = document.createRange();
+            let charCount = 0;
+            let foundStart = false;
+
+            function findNodeAndOffset(node, targetOffset) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    const nextCharCount = charCount + node.length;
+                    if (!foundStart && targetOffset >= charCount && targetOffset <= nextCharCount) {
+                        newRange.setStart(node, targetOffset - charCount);
+                        newRange.setEnd(node, targetOffset - charCount); 
+                        foundStart = true;
+                        return true; 
+                    }
+                    charCount = nextCharCount;
+                } else {
+                    for (let i = 0; i < node.childNodes.length; i++) {
+                        if (findNodeAndOffset(node.childNodes[i], targetOffset)) {
+                            return true; 
+                        }
+                    }
+                }
+                return false; 
+            }
+
+            if (element.firstChild && findNodeAndOffset(element, offset)) { 
+                selection.removeAllRanges();
+                selection.addRange(newRange);
+            } else { 
+                newRange.selectNodeContents(element);
+                newRange.collapse(false); 
+                selection.removeAllRanges();
+                selection.addRange(newRange);
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const raporGovdesi = document.getElementById('raporGovdesi');
+            const degerlendirmeSonucu = document.getElementById('degerlendirmeSonucu');
+            const basHarfBuyutBtn = document.getElementById('basHarfBuyutBtn');
+            const kutuEkleBtn = document.getElementById('kutuEkleBtn');
+            const sayfaTamamlaBtn = document.getElementById('sayfaTamamlaBtn');
+            const yazdirBtn = document.getElementById('yazdirBtn'); 
+            const yeniBilgiEkleBtn = document.getElementById('yeniBilgiEkleBtn');
+            const indirHtmlBtn = document.getElementById('indirHtmlBtn'); 
+            
+            const yeniSablonBasligiEl = document.getElementById('yeniSablonBasligi'); 
+            const yeniSablonIcerigiEl = document.getElementById('yeniSablonIcerigi');
+            const sablonKaydetBtn = document.getElementById('sablonKaydetBtn');
+            const secilidenSablonKaydetBtn = document.getElementById('secilidenSablonKaydetBtn');
+
+            const applyTnr12BoldBtn = document.getElementById('applyTnr12BoldBtn');
+            const applyItalicBtn = document.getElementById('applyItalicBtn'); 
+
+            basHarfBuyutBtn.addEventListener('click', turkceBasHarfleriBuyutSecili);
+            kutuEkleBtn.addEventListener('click', ilaveKutuEkle); 
+            sayfaTamamlaBtn.addEventListener('click', sayfayiTamamla);
+            yazdirBtn.addEventListener('click', yazdirRaporu); 
+            indirHtmlBtn.addEventListener('click', raporuHtmlIndir); 
+            yeniBilgiEkleBtn.addEventListener('click', function() {
+                yeniDinamikBilgiAlaniEkle('Yeni Alan Etiketi', 'Yeni Alan Değeri', 'Etiket Girin', 'Değer Girin', true);
+            });
+
+            sablonKaydetBtn.addEventListener('click', function() {
+                const baslik = yeniSablonBasligiEl.value.trim();
+                const icerik = yeniSablonIcerigiEl.innerHTML.trim();
+                const placeholder = yeniSablonIcerigiEl.dataset.placeholder;
+
+                if (!baslik) {
+                    showModal('Lütfen şablon için bir başlık girin.');
+                    yeniSablonBasligiEl.focus();
+                    return;
+                }
+                if (icerik && icerik !== placeholder && icerik !== '<p><br></p>') { 
+                    sablonKaydet(baslik, icerik);
+                    yeniSablonBasligiEl.value = ''; 
+                    yeniSablonIcerigiEl.innerHTML = ''; 
+                    initializePlaceholderLogic([yeniSablonIcerigiEl]); 
+                } else {
+                    showModal('Kaydedilecek şablon içeriği boş olamaz veya sadece placeholder metni içeremez.');
+                }
+            });
+
+            secilidenSablonKaydetBtn.addEventListener('click', function() {
+                const selection = window.getSelection();
+                if (selection.rangeCount > 0 && !selection.isCollapsed) {
+                    const range = selection.getRangeAt(0);
+                    const selectedFragment = range.cloneContents(); 
+                    const tempDiv = document.createElement('div');
+                    tempDiv.appendChild(selectedFragment);
+                    const selectedHTML = tempDiv.innerHTML;
+
+                    if (selectedHTML.trim()) {
+                        const baslik = prompt("Lütfen bu şablon için bir başlık girin:", "Yeni Şablon");
+                        if (baslik === null) return; 
+                        if (!baslik.trim()) {
+                            showModal("Şablon başlığı boş olamaz.");
+                            return;
+                        }
+
+                        // Seçimin yapıldığı ana düzenlenebilir alanı bulma
+                        const commonAncestor = range.commonAncestorContainer;
+                        const isInEditable = commonAncestor.closest && (
+                            commonAncestor.closest('#raporGovdesi') ||
+                            commonAncestor.closest('#degerlendirmeSonucu') ||
+                            commonAncestor.closest('.ilave-kutu')
+                        );
+                        const isNodeEditable = raporGovdesi.contains(commonAncestor) ||
+                                               degerlendirmeSonucu.contains(commonAncestor) ||
+                                               (commonAncestor.nodeType !== Node.ELEMENT_NODE && ( // Eğer text node ise parent'ını kontrol et
+                                                   raporGovdesi.contains(commonAncestor.parentElement) ||
+                                                   degerlendirmeSonucu.contains(commonAncestor.parentElement) ||
+                                                   commonAncestor.parentElement.closest('.ilave-kutu')
+                                               ));
+                        if (isInEditable || isNodeEditable) {
+                            sablonKaydet(baslik.trim(), selectedHTML);
+                        } else {
+                            showModal('Lütfen şablon olarak kaydetmek için rapor ana metninden, değerlendirme bölümünden veya ilave bir kutudan metin seçin.');
+                        }
+                    } else {
+                        showModal('Seçili metin bulunamadı.');
+                    }
+                } else {
+                    showModal('Lütfen önce metin seçin.');
+                }
+            });
+            
+            applyTnr12BoldBtn.addEventListener('click', function() {
+                 const selection = window.getSelection();
+                if (!selection.rangeCount || selection.isCollapsed) {
+                    showModal("Lütfen stil uygulamak için metin seçin.");
+                    return;
+                }
+                document.execCommand('styleWithCSS', false, true); // CSS ile stil vermeyi etkinleştir
+                document.execCommand('fontName', false, 'Times New Roman'); // Yazı tipini ayarla
+                document.execCommand('fontSize', false, '3'); // 12pt için '3' kullanılır (10pt=2, 12pt=3, 14pt=4 ...)
+                document.execCommand('bold'); // Kalın yap
+                selection.collapseToEnd(); // Seçimi kaldır
+            });
+
+            applyItalicBtn.addEventListener('click', function() { 
+                 const selection = window.getSelection();
+                if (!selection.rangeCount || selection.isCollapsed) {
+                    showModal("Lütfen stil uygulamak için metin seçin.");
+                    return;
+                }
+                document.execCommand('styleWithCSS', false, true);
+                document.execCommand('fontName', false, 'Times New Roman');
+                document.execCommand('fontSize', false, '3'); 
+                document.execCommand('italic'); 
+                selection.collapseToEnd(); 
+            });
+
+            // Başlangıçta eklenecek dinamik bilgi alanları
+            yeniDinamikBilgiAlaniEkle(
+                'Tarih/Komisyon No',             
+                'GG.AA.YYYY / 202X-XX Girin',    
+                'Tarih/Komisyon No Girin',        
+                'GG.AA.YYYY / 202X-XX Girin',    
+                true
+            );
+            yeniDinamikBilgiAlaniEkle(
+                'Gönderen Kurum/Birim/Kişi',     
+                'Değer Girin',                    
+                'Gönderen Kurum/Birim/Kişi Girin', 
+                'Değer Girin',                    
+                true
+            );
+            yeniDinamikBilgiAlaniEkle(
+                'Evrak Tarih - Sayısı',           
+                'Değer Girin',                    
+                'Evrak Tarih - Sayısı Girin',     
+                'Değer Girin',                    
+                true
+            ); 
+            yeniDinamikBilgiAlaniEkle(
+                'Şikâyet Edilen Kuruluş',         
+                'Değer Girin',                    
+                'Şikâyet Edilen Kuruluş Girin',   
+                'Değer Girin',                    
+                true
+            );
+            
+            sablonlariYukle();
+            initializePlaceholderLogic(document.querySelectorAll('[contenteditable="true"][data-placeholder]'));
+
+            // Yapıştırma işlemini yönetme (yalnızca düz metin ve Times New Roman 12pt)
+            document.body.addEventListener('paste', function(event) {
+                let target = event.target;
+                // Sadece contentEditable olan ve input/textarea olmayan elementlerde çalışsın
+                if (target.isContentEditable && !['INPUT', 'TEXTAREA'].includes(target.tagName)) {
+                    event.preventDefault(); // Varsayılan yapıştırma işlemini engelle
+                    const text = event.clipboardData.getData('text/plain'); // Sadece düz metni al
+                    const selection = window.getSelection();
+                    if (!selection.rangeCount) return false;
+
+                    selection.deleteFromDocument(); // Mevcut seçimi sil (varsa)
+
+                    // Stili zorla ayarlanmış bir span oluştur
+                    const span = document.createElement('span');
+                    span.style.setProperty('font-family', "'Times New Roman', Times, serif", 'important');
+                    span.style.setProperty('font-size', '12pt', 'important');
+                    span.style.setProperty('font-weight', 'normal', 'important'); // Kalınlığı sıfırla
+                    span.style.setProperty('font-style', 'normal', 'important'); // İtalikliği sıfırla
+                    span.style.setProperty('text-decoration', 'none', 'important'); // Alt çizgiyi sıfırla
+                    span.style.setProperty('color', '#000000', 'important'); // Rengi siyah yap
+                    span.style.setProperty('background-color', 'transparent', 'important'); // Arka planı şeffaf yap
+                    
+                    span.textContent = text;
+
+                    selection.getRangeAt(0).insertNode(span);
+                    selection.collapseToEnd(); // İmleci yapıştırılan metnin sonuna taşı
+                }
+            });
+        });
+
+        // Seçili metindeki kelimelerin baş harflerini Türkçe'ye uygun büyütür
+        function metniTurkceBasHarfleriBuyukYap(metin) {
+            if (!metin) return "";
+            return metin.split(' ').map(kelime => {
+                if (kelime.length === 0) return "";
+                const ilkHarf = kelime.charAt(0).toLocaleUpperCase('tr-TR');
+                const kalanHarfler = kelime.substring(1).toLocaleLowerCase('tr-TR');
+                return ilkHarf + kalanHarfler;
+            }).join(' ');
+        }
+
+        // Ad Soyad formatlama (Adların baş harfi büyük, soyadın tamamı büyük)
+        function formatAdiSoyadiMetni(metin) {
+            if (!metin) return "";
+            let words = metin.split(' ');
+            if (words.length === 0) return "";
+
+            return words.map((word, index) => {
+                if (word.length === 0) return "";
+                if (index === words.length - 1) { // Son kelime (soyad)
+                    return word.toLocaleUpperCase('tr-TR');
+                } else { // Adlar
+                    return word.charAt(0).toLocaleUpperCase('tr-TR') + word.substring(1).toLocaleLowerCase('tr-TR');
+                }
+            }).join(' ');
+        }
+        
+        // contenteditable alanlar için placeholder mantığını başlatır
+        function initializePlaceholderLogic(elements) {
+            const raporGovdesiInitialHTML = `<p>Raporunuzun ana metnini buraya yazabilirsiniz. Yüklediğiniz şablonlardaki gibi paragraflar, listeler ve diğer içerikleri ekleyebilirsiniz.</p>\n            <p>Örneğin, <strong>S15:</strong> Sağlık kuruluşunda hasta ve çalışan güvenliğinin sağlanması...</p>`;
+            const degerlendirmeSonucuInitialHTML = `<p>Değerlendirme sonuçlarınızı buraya ekleyiniz.</p>`;
+
+            elements.forEach(element => {
+                const placeholderText = element.dataset.placeholder;
+                if (!placeholderText && !(element.id === 'raporGovdesi' || element.id === 'degerlendirmeSonucu')) return;
+
+                const isDivLike = element.tagName === 'DIV' || element.tagName === 'H1'; 
+                let effectivePlaceholderTextOrHTML = placeholderText; 
+                let isSpecialDiv = false;
+
+                // raporGovdesi ve degerlendirmeSonucu için özel HTML placeholder'lar
+                if (element.id === 'raporGovdesi') {
+                    effectivePlaceholderTextOrHTML = raporGovdesiInitialHTML;
+                    isSpecialDiv = true;
+                } else if (element.id === 'degerlendirmeSonucu') {
+                    effectivePlaceholderTextOrHTML = degerlendirmeSonucuInitialHTML;
+                    isSpecialDiv = true;
+                }
+                
+                const currentContent = isDivLike ? element.innerHTML.trim() : element.textContent.trim();
+                const isEmptyContent = isDivLike ? (currentContent === "" || currentContent === "<p><br></p>" || currentContent === "<br>") : (currentContent === "");
+
+                if (isEmptyContent || currentContent === effectivePlaceholderTextOrHTML ) {
+                    if (isDivLike) element.innerHTML = effectivePlaceholderTextOrHTML;
+                    else element.textContent = effectivePlaceholderTextOrHTML;
+                    element.setAttribute('data-placeholder-color', 'grey');
+                } else {
+                    element.setAttribute('data-placeholder-color', 'black');
+                    if (element.classList.contains('rapor-baslik-alani')) { // Rapor başlığı her zaman büyük harf
+                        element.textContent = element.textContent.toLocaleUpperCase('tr-TR');
+                    }
+                }
+
+                if (!element.dataset.placeholderInitialized) { // Olay dinleyicilerini sadece bir kez ekle
+                    element.addEventListener('focus', function() {
+                        const isCurrentlyPlaceholder = this.getAttribute('data-placeholder-color') === 'grey';
+                        if (isCurrentlyPlaceholder) {
+                             if (isDivLike) { // DIV tabanlı contenteditable'lar için
+                                this.innerHTML = '<p><br></p>'; // Boş bir paragrafla başla, imleç için
+                                // İmleci başa al
+                                if (this.firstChild) {
+                                    const range = document.createRange();
+                                    const sel = window.getSelection();
+                                    range.setStart(this.firstChild, 0); 
+                                    range.collapse(true);
+                                    sel.removeAllRanges();
+                                    sel.addRange(range);
+                                }
+                            } else { // SPAN tabanlı contenteditable'lar için
+                                this.textContent = ''; 
+                            }
+                            this.setAttribute('data-placeholder-color', 'black');
+                        }
+                    });
+
+                    element.addEventListener('blur', function() {
+                        const originalTextContent = this.textContent; // SPAN'lar için textContent daha güvenilir
+                        let contentToCheck = isDivLike ? this.innerHTML.replace(/<p><br><\/p>|<br>/gi, '').trim() : originalTextContent.trim();
+                        
+                        // &nbsp; gibi boşluk karakterlerini de temizle
+                        if (contentToCheck.replace(/&nbsp;/g, '').trim() === '') {
+                            contentToCheck = '';
+                        }
+                        
+                        // Geri yüklenecek placeholder'ı belirle
+                        let placeholderToRestoreOnBlur = this.dataset.placeholder || ''; 
+                        if (isSpecialDiv && (this.id === 'raporGovdesi' || this.id === 'degerlendirmeSonucu')) {
+                            placeholderToRestoreOnBlur = this.id === 'raporGovdesi' ? raporGovdesiInitialHTML : degerlendirmeSonucuInitialHTML;
+                        }
+
+
+                        if (contentToCheck === '') { 
+                            if (isDivLike) this.innerHTML = placeholderToRestoreOnBlur; 
+                            else this.textContent = placeholderToRestoreOnBlur; 
+                            this.setAttribute('data-placeholder-color', 'grey');
+                            this.removeAttribute('data-formatted-initially'); // Formatlama durumunu sıfırla
+                            this.removeAttribute('data-last-known-value'); // Son bilinen değeri sıfırla
+                        } else { 
+                            this.setAttribute('data-placeholder-color', 'black');
+                            
+                            // Otomatik formatlama mantığı (imza ve dinamik alanlar için)
+                            let userEnteredText = originalTextContent.trim(); // SPAN'lar için
+                            if(isDivLike && this.classList.contains('rapor-baslik-alani')) { // Rapor başlığı için textContent kullan
+                                userEnteredText = this.textContent.trim();
+                            }
+
+
+                            if (this.classList.contains('rapor-baslik-alani')) {
+                                this.textContent = userEnteredText.toLocaleUpperCase('tr-TR');
+                            } 
+                            else if (userEnteredText !== "" && userEnteredText !== this.dataset.placeholder) { // Placeholder değilse formatla
+                                let formatFunction = null;
+                                if (this.classList.contains('dinamik-bilgi-deger') && this.dataset.autoTitleCase === 'true') {
+                                    formatFunction = metniTurkceBasHarfleriBuyukYap;
+                                } else if (this.parentElement && this.parentElement.classList.contains('imza-kisi')) {
+                                    const placeholderAttr = this.dataset.placeholder; 
+                                    if (placeholderAttr === "Adı Soyadı") formatFunction = formatAdiSoyadiMetni;
+                                    else if (["Üye", "Başkan", "Katip Üye", "Unvanı"].includes(placeholderAttr)) formatFunction = metniTurkceBasHarfleriBuyukYap;
+                                }
+                                
+                                if (formatFunction) {
+                                    const lastKnownValue = this.dataset.lastKnownValue || "";
+                                    // Sadece ilk kez veya içerik değiştiyse formatla
+                                    if (!this.dataset.formattedInitially || (lastKnownValue && userEnteredText.toLocaleLowerCase('tr-TR') !== lastKnownValue.toLocaleLowerCase('tr-TR'))) {
+                                        const formattedText = formatFunction(userEnteredText);
+                                        if (this.textContent !== formattedText) { // Gereksiz DOM değişikliğini önle
+                                            this.textContent = formattedText;
+                                        }
+                                        this.dataset.formattedInitially = 'true';
+                                        this.dataset.lastKnownValue = formattedText; // Son formatlanmış değeri sakla
+                                    } 
+                                    // Eğer kullanıcı formatı bozduysa, son bilinen değeri güncelle
+                                    else if (userEnteredText !== lastKnownValue) {
+                                        this.dataset.lastKnownValue = userEnteredText; 
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    element.dataset.placeholderInitialized = 'true';
+                }
+            });
+        }
+
+        // Seçili metni Türkçe baş harfleri büyük yapar
+        function turkceBasHarfleriBuyutSecili() {
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+
+            const range = selection.getRangeAt(0);
+            const selectedText = range.toString();
+            if (!selectedText) return;
+
+            // Seçimin yapıldığı contentEditable alanı bul
+            let containerElement = range.commonAncestorContainer;
+            if (containerElement.nodeType !== Node.ELEMENT_NODE) { // Eğer text node ise, parent'ını al
+                containerElement = containerElement.parentElement;
+            }
+            while (containerElement && !containerElement.isContentEditable) { // En yakın contentEditable parent'a kadar çık
+                containerElement = containerElement.parentElement;
+            }
+
+            if (!containerElement || !containerElement.isContentEditable) {
+                showModal("Lütfen düzenlenebilir bir alandan metin seçin.");
+                return;
+            }
+            
+            const formattedText = metniTurkceBasHarfleriBuyukYap(selectedText);
+            range.deleteContents();
+            range.insertNode(document.createTextNode(formattedText));
+
+            // Formatted text'i tekrar seçili hale getir (opsiyonel)
+            const newRange = document.createRange();
+            newRange.setStart(range.startContainer, range.startOffset);
+            newRange.setEnd(range.startContainer, range.startOffset + formattedText.length);
+            selection.removeAllRanges();
+            selection.addRange(newRange);
+        }
+
+        // Rapor gövdesine ilave bir düzenlenebilir kutu ekler
+        function ilaveKutuEkle() {
+            const raporGovdesi = document.getElementById('raporGovdesi');
+            const ilaveKutu = document.createElement('div');
+            ilaveKutu.className = 'ilave-kutu editable-content'; // Hem ilave-kutu hem de editable-content
+            ilaveKutu.contentEditable = true;
+            ilaveKutu.dataset.placeholder = 'İlave bilgileri buraya yazınız...';
+            
+            raporGovdesi.appendChild(ilaveKutu);
+            initializePlaceholderLogic([ilaveKutu]); // Yeni kutu için placeholder mantığını başlat
+            ilaveKutu.focus();
+        }
+
+        // Yeni bir dinamik bilgi alanı (etiket-değer çifti) ekler
+        function yeniDinamikBilgiAlaniEkle(etiket = 'Yeni Etiket', deger = 'Yeni Değer', etiketPlaceholder = 'Etiket Girin', degerPlaceholder = 'Değer Girin', autoTitleCaseDeger = false) {
+            const liste = document.getElementById('dinamikBilgiListesi');
+            const satir = document.createElement('div');
+            satir.className = 'dinamik-bilgi-satiri';
+
+            const etiketSpan = document.createElement('span');
+            etiketSpan.className = 'dinamik-bilgi-etiket';
+            etiketSpan.contentEditable = true;
+            etiketSpan.dataset.placeholder = etiketPlaceholder || etiket; 
+            etiketSpan.textContent = etiket; 
+
+            const degerSpan = document.createElement('span');
+            degerSpan.className = 'dinamik-bilgi-deger';
+            degerSpan.contentEditable = true;
+            degerSpan.dataset.placeholder = degerPlaceholder || deger; 
+            degerSpan.textContent = deger; 
+            if (autoTitleCaseDeger) {
+                degerSpan.dataset.autoTitleCase = 'true'; // Otomatik baş harf büyütme için işaretle
+            }
+
+            const silBtn = document.createElement('button');
+            silBtn.textContent = 'Sil';
+            silBtn.className = 'delete-info-button';
+            silBtn.onclick = function() {
+                satir.remove();
+            };
+
+            satir.appendChild(etiketSpan);
+            satir.appendChild(degerSpan);
+            satir.appendChild(silBtn);
+            liste.appendChild(satir);
+
+            initializePlaceholderLogic([etiketSpan, degerSpan]); // Yeni alanlar için placeholder mantığını başlat
+        }
+
+        // Yeni bir şablonu yerel depolamaya kaydeder
+        function sablonKaydet(baslik, icerik) { 
+            if (!baslik || baslik.trim() === '') {
+                showModal('Şablon başlığı boş olamaz.');
+                return;
+            }
+            if (!icerik || icerik.trim() === '' || icerik.trim() === '<p><br></p>') {
+                showModal('Kaydedilecek şablon içeriği boş olamaz.');
+                return;
+            }
+            let sablonlar = JSON.parse(localStorage.getItem('arastirmaRaporuSablonlari')) || [];
+            const yeniSablon = { id: Date.now().toString(), baslik: baslik, icerik: icerik };
+            sablonlar.push(yeniSablon);
+            localStorage.setItem('arastirmaRaporuSablonlari', JSON.stringify(sablonlar));
+            sablonlariYukle();
+            showModal('Şablon başarıyla kaydedildi!', 'success');
+        }
+
+        // Kayıtlı şablonları yerel depolamadan yükler ve listeler
+        function sablonlariYukle() {
+            const liste = document.getElementById('kayitliSablonlarListesi');
+            liste.innerHTML = ''; 
+            let sablonlar = JSON.parse(localStorage.getItem('arastirmaRaporuSablonlari')) || [];
+
+            if (sablonlar.length === 0) {
+                liste.innerHTML = '<p class="text-sm text-gray-500">Kayıtlı şablon bulunmamaktadır.</p>';
+                return;
+            }
+
+            sablonlar.forEach(sablon => {
+                const item = document.createElement('div');
+                item.className = 'kayitli-sablon-item';
+
+                const baslikDiv = document.createElement('div'); 
+                baslikDiv.className = 'kayitli-sablon-baslik';
+                baslikDiv.textContent = sablon.baslik || "Başlıksız Şablon"; 
+
+                const icerikDiv = document.createElement('div');
+                icerikDiv.className = 'kayitli-sablon-icerik';
+                icerikDiv.innerHTML = sablon.icerik; 
+
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'actions';
+
+                const ekleBtn = document.createElement('button');
+                ekleBtn.textContent = 'Ekle';
+                ekleBtn.className = 'insert-template-button';
+                ekleBtn.onclick = function() {
+                    const activeElement = document.activeElement;
+                    // Sadece belirli contenteditable alanlara ekleme yap
+                    if (activeElement && activeElement.isContentEditable && 
+                        (activeElement.id === 'raporGovdesi' || activeElement.id === 'degerlendirmeSonucu' || activeElement.classList.contains('ilave-kutu') || activeElement.id === 'yeniSablonIcerigi')) {
+                        
+                        // Eğer placeholder aktifse, içeriği temizle
+                        if (activeElement.getAttribute('data-placeholder-color') === 'grey') {
+                            activeElement.innerHTML = ''; 
+                            activeElement.setAttribute('data-placeholder-color', 'black');
+                        }
+                        
+                        const selection = window.getSelection();
+                        if (selection.rangeCount > 0) {
+                            const range = selection.getRangeAt(0);
+                            range.deleteContents(); // Mevcut seçimi sil
+                            
+                            // Şablon içeriğini DOM'a eklemek için geçici bir div kullan
+                            const tempDiv = document.createElement('div');
+                            tempDiv.innerHTML = sablon.icerik;
+                            
+                            // DocumentFragment kullanarak birden fazla node'u tek seferde ekle
+                            const fragment = document.createDocumentFragment();
+                            while (tempDiv.firstChild) {
+                                fragment.appendChild(tempDiv.firstChild);
+                            }
+                            range.insertNode(fragment);
+                            range.collapse(false); // İmleci eklenen içeriğin sonuna taşı
+                        } else { // Eğer seçim yoksa, sona ekle (bu senaryo genelde olmaz)
+                            activeElement.innerHTML += sablon.icerik;
+                        }
+                        activeElement.focus(); // Ekleme yapılan alana odaklan
+                    } else {
+                        showModal("Lütfen şablonu eklemek istediğiniz rapor ana metninden, değerlendirme sonucu, ilave kutu veya yeni şablon içeriği alanına tıklayın.");
+                    }
+                };
+
+                const silBtn = document.createElement('button');
+                silBtn.textContent = 'Sil';
+                silBtn.className = 'delete-template-button';
+                silBtn.onclick = function() {
+                    sablonSil(sablon.id);
+                };
+
+                actionsDiv.appendChild(ekleBtn);
+                actionsDiv.appendChild(silBtn);
+                
+                item.appendChild(baslikDiv); 
+                item.appendChild(icerikDiv); 
+                item.appendChild(actionsDiv); 
+                liste.appendChild(item);
+            });
+        }
+
+        // Belirtilen ID'ye sahip şablonu yerel depolamadan siler
+        function sablonSil(id) {
+            let sablonlar = JSON.parse(localStorage.getItem('arastirmaRaporuSablonlari')) || [];
+            sablonlar = sablonlar.filter(s => s.id !== id);
+            localStorage.setItem('arastirmaRaporuSablonlari', JSON.stringify(sablonlar));
+            sablonlariYukle();
+            showModal('Şablon silindi.', 'info');
+        }
+        
+        // Raporu HTML olarak indirir
+        function raporuHtmlIndir() { 
+            sayfayiTamamla(); // Önce önizleme alanını güncelle
+
+            const onizlemeAlani = document.getElementById('raporOnizlemeAlani');
+            if (!onizlemeAlani || onizlemeAlani.innerHTML.trim() === '') {
+                showModal('HTML oluşturmak için lütfen önce rapor içeriğini doldurun.', 'warning');
+                return;
+            }
+
+            const contentHtml = onizlemeAlani.innerHTML;
+            
+            // Dosya adını "Şikayet Edilen Kuruluş" alanından almaya çalış
+            let dosyaAdi = "arastirma_raporu"; 
+            const dinamikBilgiAlanlari = document.querySelectorAll('#dinamikBilgiListesi .dinamik-bilgi-satiri');
+            for (const satir of dinamikBilgiAlanlari) {
+                const etiketEl = satir.querySelector('.dinamik-bilgi-etiket');
+                const degerEl = satir.querySelector('.dinamik-bilgi-deger');
+                if (etiketEl && etiketEl.textContent.trim() === "Şikâyet Edilen Kuruluş") {
+                    if (degerEl && degerEl.getAttribute('data-placeholder-color') !== 'grey' && degerEl.textContent.trim() !== "" && degerEl.textContent.trim() !== degerEl.dataset.placeholder) {
+                        dosyaAdi = degerEl.textContent.trim();
+                        // Türkçe karakterleri ve boşlukları dosya adı için uygun hale getir
+                        dosyaAdi = dosyaAdi.toLowerCase()
+                                       .replace(/ı/g, 'i')
+                                       .replace(/ş/g, 's')
+                                       .replace(/ğ/g, 'g')
+                                       .replace(/ü/g, 'u')
+                                       .replace(/ö/g, 'o')
+                                       .replace(/ç/g, 'c')
+                                       .replace(/\s+/g, '_') 
+                                       .replace(/[^a-z0-9_]/g, ''); 
+                        if (dosyaAdi === "") dosyaAdi = "arastirma_raporu"; 
+                        else dosyaAdi += "_arastirma_raporu";
+                    }
+                    break; 
+                }
+            }
+
+            // HTML dosyası için temel stiller
+            const styles = `
+                body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; color: #000000; line-height: 1.3; margin: 1cm; } 
+                h1 { font-size: 16pt; font-weight: bold; text-align: center; text-transform: uppercase; margin-bottom: 15px; border: 1px solid #000000; padding: 8px; line-height: 1.3; } 
+                h2 { font-size: 12pt; font-weight: bold; margin-top: 10px; margin-bottom: 4px; border-bottom: 1px solid #cccccc; padding-bottom: 2px; line-height: 1.2;}
+                p { margin-bottom: 6px; line-height: 1.3; }
+                .onizleme-bilgi-satiri { margin-bottom: 5px; line-height: 1.2; display: flex; align-items: stretch;} 
+                .onizleme-dinamik-etiket { font-weight: bold; border: 1px solid #000000; padding: 3px 8px; margin-right: 8px; background-color: #f0f0f0; min-width: 180px; display: flex; align-items: center; min-height: 22px; } 
+                .onizleme-dinamik-deger { border: 1px solid #000000; padding: 3px 8px; flex-grow: 1; display: flex; align-items: center; min-height: 22px;}
+                .onizleme-editable-wrapper { border: 1px solid #000; padding: 10px 12px; margin-bottom: 8px; margin-top:4px; line-height: 1.3;}
+                .ilave-kutu { border: 1px solid #000; padding: 10px; margin: 8px 0; background-color: #f9f9f9; line-height: 1.3;}
+                .onizleme-imza-bolumu { margin-top: 20px; padding-top: 8px; border-top: 1px solid #cccccc; display: flex; justify-content: space-around; flex-wrap: wrap; }
+                .onizleme-imza-kisi { text-align: center; margin-bottom: 8px; width: calc(33.333% - 16px); min-width: 170px; margin: 4px; } 
+                .onizleme-imza-kisi div { border-bottom: none; padding-bottom: 0px; margin-bottom: 0px; line-height: 1.3; }
+                strong, b { font-weight: bold; }
+                em, i { font-style: italic; }
+            `;
+
+            const fullHtml = `
+                <!DOCTYPE html>
+                <html lang="tr">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>${dosyaAdi.replace(/_arastirma_raporu$/, '').replace(/_/g, ' ')}</title>
+                    <style>${styles}</style>
+                </head>
+                <body>
+                    ${contentHtml}
+                </body>
+                </html>
+            `;
+
+            try {
+                const blob = new Blob([fullHtml], { type: 'text/html' });
+                const downloadLink = document.createElement('a');
+                downloadLink.href = URL.createObjectURL(blob);
+                downloadLink.download = `${dosyaAdi}.html`; 
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+                URL.revokeObjectURL(downloadLink.href); 
+                showModal('Rapor HTML olarak indiriliyor...', 'success');
+            } catch (e) {
+                console.error('HTML oluşturma hatası:', e);
+                showModal(`HTML dosyası oluşturulurken bir hata oluştu: ${e.message}.`, 'error');
+            }
+        }
+
+
+        // Raporun son halini önizleme alanında oluşturur
+        function sayfayiTamamla() {
+            const onizlemeAlani = document.getElementById('raporOnizlemeAlani');
+            onizlemeAlani.innerHTML = ''; // Önceki içeriği temizle
+            onizlemeAlani.style.display = 'block'; // Görünür yap (yazdırma için)
+
+            // Rapor Başlığını Kopyala
+            const raporBasligiEl = document.querySelector('.rapor-baslik-alani');
+            const onizlemeRaporBasligi = document.createElement('h1');
+            onizlemeRaporBasligi.className = 'onizleme-rapor-basligi';
+            let raporBasligiMetni = raporBasligiEl.getAttribute('data-placeholder-color') === 'grey' ? raporBasligiEl.dataset.placeholder : raporBasligiEl.textContent; 
+            onizlemeRaporBasligi.textContent = raporBasligiMetni.toLocaleUpperCase('tr-TR'); 
+            onizlemeAlani.appendChild(onizlemeRaporBasligi);
+
+            // Dinamik Bilgi Alanlarını Kopyala
+            const dinamikBilgiAlanlari = document.querySelectorAll('#dinamikBilgiListesi .dinamik-bilgi-satiri');
+            dinamikBilgiAlanlari.forEach(satir => {
+                const etiketEl = satir.querySelector('.dinamik-bilgi-etiket');
+                const degerEl = satir.querySelector('.dinamik-bilgi-deger');
+
+                const onizlemeSatir = document.createElement('div');
+                onizlemeSatir.className = 'onizleme-bilgi-satiri'; 
+
+                const onizlemeEtiket = document.createElement('div'); 
+                onizlemeEtiket.className = 'onizleme-dinamik-etiket';
+                onizlemeEtiket.innerHTML = etiketEl.getAttribute('data-placeholder-color') === 'grey' ? etiketEl.dataset.placeholder : etiketEl.innerHTML;
+                
+                const onizlemeDeger = document.createElement('div'); 
+                onizlemeDeger.className = 'onizleme-dinamik-deger';
+                onizlemeDeger.innerHTML = degerEl.getAttribute('data-placeholder-color') === 'grey' ? degerEl.dataset.placeholder : degerEl.innerHTML;
+
+                onizlemeSatir.appendChild(onizlemeEtiket); 
+                onizlemeSatir.appendChild(onizlemeDeger); 
+                onizlemeAlani.appendChild(onizlemeSatir);
+            });
+            
+            // Düzenlenebilir içerik alanlarını (rapor gövdesi, değerlendirme) kopyala
+            function cloneEditableContent(sourceElementId, targetContainer, sectionTitleText) { 
+                const sourceEl = document.getElementById(sourceElementId);
+                if (sectionTitleText) { 
+                    const titleEl = document.createElement('h2');
+                    if (sectionTitleText === "Yapılan Değerlendirme Sonucunda") { 
+                        titleEl.textContent = "Yapılan Değerlendirme Sonucunda;"; // Başlığa noktalı virgül ekle
+                    } else {
+                        titleEl.textContent = sectionTitleText; 
+                    }
+                    targetContainer.appendChild(titleEl);
+                }
+                
+                const wrapperDiv = document.createElement('div');
+                wrapperDiv.className = 'onizleme-editable-wrapper avoid-page-break'; // Sayfa sonu kontrolü için
+
+                if (sourceEl.getAttribute('data-placeholder-color') === 'grey') {
+                    // Placeholder ise, placeholder içeriğini (HTML olabilir) kopyala
+                    wrapperDiv.innerHTML = sourceEl.innerHTML; 
+                } else {
+                    // Gerçek içeriği kopyala, içindeki ilave kutuları da işle
+                    const clonedContent = sourceEl.cloneNode(true); 
+                    clonedContent.querySelectorAll('.ilave-kutu').forEach(kutu => {
+                        kutu.classList.add('onizleme-ilave-kutu'); // Önizleme için özel sınıf (gerekirse)
+                        kutu.removeAttribute('contenteditable'); // Önizlemede düzenlenemez yap
+                    });
+                    wrapperDiv.innerHTML = clonedContent.innerHTML;
+                }
+                targetContainer.appendChild(wrapperDiv);
+            }
+
+            cloneEditableContent('raporGovdesi', onizlemeAlani, null); // Rapor gövdesi için başlık yok
+            cloneEditableContent('degerlendirmeSonucu', onizlemeAlani, 'Yapılan Değerlendirme Sonucunda');
+
+            // İmza Bölümünü Kopyala (sadece dolu olanları)
+            const onizlemeImzaBolumu = document.createElement('div');
+            onizlemeImzaBolumu.className = 'onizleme-imza-bolumu avoid-page-break'; // Sayfa sonu kontrolü
+            const imzaKisileri = document.querySelectorAll('.imza-bolumu .imza-kisi');
+            let herhangiBirImzaDolu = false;
+
+            imzaKisileri.forEach(kisi => {
+                const spans = kisi.querySelectorAll('span');
+                let isKisiFilled = false;
+                spans.forEach(span => {
+                    if (span.getAttribute('data-placeholder-color') !== 'grey') {
+                        isKisiFilled = true;
+                    }
+                });
+
+                if (isKisiFilled) {
+                    herhangiBirImzaDolu = true;
+                    const onizlemeKisi = document.createElement('div');
+                    onizlemeKisi.className = 'onizleme-imza-kisi';
+                    spans.forEach(span => {
+                        const div = document.createElement('div'); // Önizlemede her satır ayrı div
+                        div.innerHTML = span.getAttribute('data-placeholder-color') === 'grey' ? span.dataset.placeholder : span.innerHTML;
+                        onizlemeKisi.appendChild(div);
+                    });
+                    onizlemeImzaBolumu.appendChild(onizlemeKisi);
+                }
+            });
+
+            if(herhangiBirImzaDolu){
+                onizlemeAlani.appendChild(onizlemeImzaBolumu);
+            }
+        }
+
+        // Raporu yazdırma işlemini başlatır
+        function yazdirRaporu() {
+            sayfayiTamamla(); // Önizleme alanını her zaman güncelle
+        
+            setTimeout(() => { // DOM'un güncellenmesi için kısa bir bekleme
+                const onizlemeAlani = document.getElementById('raporOnizlemeAlani');
+                if (!onizlemeAlani || onizlemeAlani.innerHTML.trim() === '') {
+                    showModal('Yazdırılacak içerik oluşturulamadı', 'warning');
+                    return;
+                }
+        
+                const printWindow = window.open('', '_blank'); // Yeni bir boş pencere aç
+                
+                // Yeni pencereye kopyalanacak stiller
+                const styles = `
+                    body { 
+                        font-family: 'Times New Roman', Times, serif !important; 
+                        font-size: 12pt !important; 
+                        color: #000 !important; 
+                        line-height: 1.3 !important;
+                        margin: 1cm !important; /* Sayfa kenar boşlukları */
+                        background-color: white !important;
+                    }
+                    .onizleme-rapor-basligi { 
+                        font-size: 16pt !important; text-align: center !important; margin-bottom: 15px !important; 
+                        font-weight: bold !important; color: #000 !important; font-family: 'Times New Roman', Times, serif !important;
+                        border: 1px solid #000 !important; padding: 8px !important; border-radius: 4px !important;
+                        text-transform: uppercase !important; line-height: 1.3 !important; 
+                    }
+                    h2 { 
+                        font-size: 12pt !important; margin-top: 8px !important; margin-bottom: 4px !important; 
+                        border-bottom: 1px solid #ccc !important; padding-bottom: 2px !important; 
+                        font-weight: bold !important; color: #000 !important; font-family: 'Times New Roman', Times, serif !important;
+                        line-height: 1.2 !important; 
+                    }
+                    .onizleme-editable-wrapper { 
+                        margin-top: 4px !important; margin-bottom: 8px !important; 
+                        border: 1px solid #000 !important; padding: 10px 12px !important; 
+                        min-height: 100px !important; 
+                        border-radius: 4px !important; background-color: #fff !important;
+                        font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;
+                        line-height: 1.3 !important; 
+                    }
+                    p, div:not(.onizleme-imza-bolumu):not(.onizleme-imza-kisi):not(.onizleme-bilgi-satiri):not(.onizleme-editable-wrapper):not(.onizleme-dinamik-etiket):not(.onizleme-dinamik-deger):not(.onizleme-rapor-basligi):not(.ilave-kutu) {
+                        margin-bottom: 6px !important; line-height: 1.3 !important; 
+                        color: #000 !important; font-family: 'Times New Roman', Times, serif !important;
+                        font-size: 12pt !important;
+                    }
+                    .ilave-kutu { 
+                        border: 1px solid #000 !important; padding: 10px !important; margin: 8px 0 !important; 
+                        background-color: #f9f9f9 !important; border-radius: 4px !important;
+                        font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;
+                        min-height: 45px !important; line-height: 1.3 !important; 
+                    }
+                    .onizleme-bilgi-satiri {
+                        margin-bottom: 6px !important;  
+                        display: flex !important; align-items: stretch !important; 
+                        font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;
+                        line-height: 1.2 !important; 
+                    }
+                    .onizleme-dinamik-etiket {
+                        font-weight: bold !important; margin-right: 8px !important; padding: 3px 8px !important; 
+                        border: 1px solid #000 !important; border-radius: 4px !important;
+                        min-width: 180px !important; background-color: #f9f9f9 !important;
+                        font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;
+                        display: flex !important; align-items: center !important; 
+                        min-height: 22px !important; 
+                    }
+                    .onizleme-dinamik-deger {
+                        flex-grow: 1 !important; padding: 3px 8px !important; 
+                        border: 1px solid #000 !important; border-radius: 4px !important;
+                        background-color: white !important; font-family: 'Times New Roman', Times, serif !important;
+                        font-size: 12pt !important; display: flex !important; align-items: center !important; 
+                        min-height: 22px !important; 
+                    }
+                    .onizleme-imza-bolumu {
+                        display: flex !important; justify-content: space-around !important; flex-wrap: wrap !important;
+                        margin-top: 20px !important; padding-top: 8px !important; 
+                        border-top: 1px solid #ccc !important;
+                        font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;
+                    }
+                    .onizleme-imza-kisi {
+                        text-align: center !important; width: calc(33.333% - 16px) !important; 
+                        min-width: 170px !important; margin: 4px !important; margin-bottom: 8px !important; 
+                        font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;
+                    }
+                    .onizleme-imza-kisi div { 
+                        font-family: 'Times New Roman', Times, serif !important; font-size: 12pt !important;
+                        color: #000 !important; border-bottom: none !important; 
+                        padding-bottom: 0px !important; margin-bottom: 0px !important; 
+                        line-height: 1.3 !important; 
+                    }
+                    strong, b { font-weight: bold !important; }
+                    em, i { font-style: italic !important; }
+                    .page-break-before { page-break-before: always !important; }
+                    .page-break-after { page-break-after: always !important; }
+                    .avoid-page-break { page-break-inside: avoid !important; }
+                `;
+                
+                printWindow.document.write('<html><head><title>Araştırma Raporu Yazdır</title>');
+                printWindow.document.write('<style type="text/css">' + styles + '</style>');
+                printWindow.document.write('</head><body>');
+                printWindow.document.write(onizlemeAlani.innerHTML);
+                printWindow.document.write('<script>window.onload = function() { setTimeout(function() { window.print(); window.close(); }, 300); };<\/script>'); // Pencere yüklendikten sonra yazdır ve kapat
+                printWindow.document.close(); // Belge yazımını bitir
+                printWindow.focus(); // Yeni pencereye odaklan (bazı tarayıcılar için gerekli)
+            }, 100); // sayfayiTamamla'nın DOM'u güncellemesi için kısa bir bekleme
+        }
+
+
+        // Basit bir modal/alert gösterir
+        function showModal(message, type = 'info') {
+            let prefix = "";
+            if (type === "success") prefix = "Başarılı: ";
+            else if (type === "warning") prefix = "Uyarı: ";
+            else if (type === "error") prefix = "Hata: ";
+            
+            alert(prefix + message); // Şimdilik alert kullanılıyor, daha gelişmiş bir modal eklenebilir.
+        }
+
+    </script>
+</body>
+</html>
